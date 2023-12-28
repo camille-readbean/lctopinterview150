@@ -1,31 +1,31 @@
-from collections import defaultdict
 from random import choice
-# seems like hashtable data struct
-def f(): return False
 
 class RandomizedSet:
 
     def __init__(self):
-        # default is False, not there
-        self.__table = defaultdict(f)
-        self.__memorised_count = 0
-        self.__memorised_choices = []
-        self.__current_count = 0
+        self.__data_table = {}
+        self.__data = []
 
     def insert(self, val: int) -> bool:
         # present, return False
-        if self.__table[val]:
+        # faster than `val in self.data.keys()`
+        if val in self.__data_table:
             return False
-        self.__table[val] = True
-        self.__memorised_count += 1
+        # insert value to the end of data, so we know the index (the current len)
+        self.__data_table[val] = len(self.__data)
+        self.__data.append(val)
         return True
         
 
     def remove(self, val: int) -> bool:
         # present, return true
-        if self.__table[val]:
-            self.__table[val] = False
-            self.__memorised_count += 1
+        if val in self.__data_table:
+            to_swap = self.__data[-1]
+            index_to_swap = self.__data_table[val]
+            self.__data[index_to_swap] = to_swap
+            self.__data_table[to_swap] = index_to_swap
+            self.__data.pop()
+            self.__data_table.pop(val)
             return True
         return False
 
@@ -34,11 +34,13 @@ class RandomizedSet:
         # i think better is this solution here
         # https://leetcode.com/problems/insert-delete-getrandom-o1/solutions/455253/python-super-efficient-detailed-explanation/?source=submission-ac
         # uses list and dict together to keep track of index
-        if self.__current_count == self.__memorised_count:
-            return choice(self.__memorised_choices)
-        self.__memorised_choices = [x for x in self.__table.keys() if self.__table[x] == True]
-        self.__current_count = self.__memorised_count
-        return choice(self.__memorised_choices)
+        # if self.__current_count == self.__memorised_count:
+        #     return choice(self.__memorised_choices)
+        # self.__memorised_choices = [x for x in self.__table.keys() if self.__table[x] == True]
+        # self.__current_count = self.__memorised_count
+
+        # old code above using memorisation
+        return choice(self.__data)
 
 
 # Your RandomizedSet object will be instantiated and called as such:
